@@ -1,0 +1,27 @@
+---
+
+- name: Reset Kubernetes component
+  shell: "kubeadm reset"
+  register: reset_cluster
+
+- name: Join to Kubernetes cluster
+  shell: |
+    kubeadm join --skip-preflight-checks \
+                 --token {{ token }} \
+                 {{ groups['master'][0] }}:{{ insecure_port }} \
+                 --discovery-token-unsafe-skip-ca-verification
+  register: join_cluster
+
+- name: debug kubeadm join output
+  debug: msg={{ join_cluster }}
+
+- name: Reload kubelet daemon
+  command: systemctl --system daemon-reload
+
+- name: Enable kubelet
+  service: name=kubelet enabled=yes
+
+- name: Restart kubelet
+  service: name=kubelet state=restarted
+
+

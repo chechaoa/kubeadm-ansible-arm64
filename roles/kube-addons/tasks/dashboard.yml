@@ -1,0 +1,23 @@
+---
+
+- set_fact:
+    yaml_file_dir: "{{ kube_addons_dir }}/dashboard"
+    yaml_files:
+      - dashboard-configmap.yaml
+      - dashboard-controller.yaml
+      - dashboard-rbac-admin.yaml
+      - dashboard-rbac.yaml
+      - dashboard-secret.yaml
+      - dashboard-service.yaml
+
+- name: create dashboard  dir for yml
+  file: path={{ yaml_file_dir }} state=directory
+  
+- name: Copy yaml files
+  copy: src=dashboard/{{ item }} dest={{ yaml_file_dir }}
+  with_items: "{{ yaml_files }}"
+
+- name: Install dashboard
+  shell: kubectl apply -f "{{ yaml_file_dir }}/{{ item }}"
+  with_items: "{{ yaml_files }}"
+

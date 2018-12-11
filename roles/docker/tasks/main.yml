@@ -1,0 +1,15 @@
+---
+
+- name: Install Docker container engine
+  include: lite.yml
+
+- name: Systemctl daemon reload
+  command: systemctl --system daemon-reload
+  register: started_docker
+
+- name: Enable docker
+  service: name=docker enabled=yes
+
+- name: Restart docker engine
+  service: name=docker state=restarted
+

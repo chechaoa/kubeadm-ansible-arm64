@@ -1,0 +1,12 @@
+[master]
+123.150.8.42  hostname=master  ansible_user=root  ansible_ssh_port=9031  ansible_ssh_pass=Kylin123.
+
+[node]
+#28.204.57.159  hostname=node  ansible_user=root  ansible_ssh_pass=123456
+
+[kube-cluster:children]
+master
+node
+
+[add-node]
+#28.204.57.161  hostname=node1  ansible_user=root  ansible_ssh_pass=123456

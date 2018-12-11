@@ -1,0 +1,28 @@
+---
+
+- hosts: kube-cluster
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Reset Kubernetes component
+      command: kubeadm reset
+      ignore_errors: True
+
+    - name: Delete flannel.1 interface
+      command: ip link delete flannel.1
+      ignore_errors: True
+
+    - name: Stop kubelet
+      service: name=kubelet state=stopped
+      ignore_errors: True
+    
+    - name: Delete docker containers
+      command: docker rm -f $(docker ps -aq)
+      ignore_errors: True
+    
+    - name: Reomve create files
+      file: path={{ item }}  state=absent
+      with_items:
+      - /etc/kubernetes/addons
+      - /tmp/caicloud
+      ignore_errors: True 

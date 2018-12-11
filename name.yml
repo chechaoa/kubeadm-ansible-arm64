@@ -1,0 +1,10 @@
+---
+
+
+- hosts: kube-cluster
+  remote_user: root 
+  tasks:
+    - name: change name
+      raw: "echo {{hostname|quote}} > /etc/hostname"
+    - name: 
+      shell: hostname {{hostname|quote}}

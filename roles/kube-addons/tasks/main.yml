@@ -1,0 +1,10 @@
+---
+
+- name: Deploy addons
+  include: "{{ item }}"
+  with_items:
+    - canal.yml
+    - heapster.yml
+    - dashboard.yml
+
+

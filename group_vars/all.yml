@@ -1,0 +1,38 @@
+# Kubernetes
+kube_version: v1.8.6
+
+
+token: 397304.bf9e74fc6d472c39
+# token ttl for example: 1s, 2m, 3h. 0 means 'never expires'. default 24h0m0s.
+token_ttl: 0
+
+# 1.8.x feature: --feature-gates SelfHosting=true
+init_opts: ""
+
+# Any other additional opts you want to add..
+kubeadm_opts: ""
+
+service_cidr: "10.10.0.0/16"
+# Cluster dns ip address must in service_cidr
+cluser_dns: "10.10.0.10"
+
+# Network implementation('flannel', 'calico')
+pod_network_cidr: "10.244.0.0/16"
+
+# valid value: online/offline/lite
+repo_type: "lite"
+insecure_bind_address: "127.0.0.1"
+insecure_port: "8080"
+
+
+enable_dashboard: yes
+
+tmp_caicloud: "/tmp/caicloud"
+deb_package_dir: "{{tmp_caicloud}}/deb_package"
+deb_docker_dir: "{{tmp_caicloud}}/deb_docker"
+systemd_dir: /lib/systemd/system
+system_env_dir: /etc/sysconfig
+kubeadmin_config: /etc/kubernetes/admin.conf
+kube_dir: "/etc/kubernetes"
+kube_addons_dir: /etc/kubernetes/addons
+

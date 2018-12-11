@@ -1,0 +1,37 @@
+---
+
+- name: Clear config files
+  when:  ansible_distribution  == "Kylin"
+  shell: dpkg --purge kubectl kubelet kubeadm kubernetes-cni
+#  shell: dpkg --purge {{ item }}
+#  with_items:
+#    - kubectl
+#    - kubelet
+#    - kubeadm
+#    - kubernetes-cni
+
+- set_fact:
+    image_file: "{{ tmp_caicloud }}/kubeadm-images.tar.gz"
+    kube_debs:
+      - kubernetes-cni_0.5.1-00_arm64.deb
+      - kubelet_1.8.6-00_arm64.deb
+      - kubectl_1.8.6-00_arm64.deb
+      - kubeadm_1.8.6-00_arm64.deb
+
+- name: Copy deb packages
+  when:  ansible_distribution  == "Kylin"
+  copy: src={{ item }} dest={{ deb_package_dir }}
+  with_items: "{{ kube_debs }}"
+
+
+- name: Install kube packages
+  when:  ansible_distribution  == "Kylin"
+  command: dpkg -i {{ deb_package_dir }}/{{ item }}
+  with_items: "{{ kube_debs }}"
+
+- name: Copy images tarball
+  copy: src=kubeadm-images.tar.gz dest={{ image_file }}
+
+
+- name: Load images
+  shell: docker load -i {{ image_file }}

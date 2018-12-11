@@ -1,0 +1,19 @@
+---
+
+- set_fact:
+    docker_debs:
+      - containerd_0.2.5-0ubuntu1-16.04.1_arm64.deb
+      - runc_1.0.0-rc2 docker1.12.6-0ubuntu1_arm64.deb
+      - docker.io_1.12.6-0ubuntu1-16.04.1_arm64(1).deb
+
+- debug: msg={{ ansible_distribution }}
+
+- name: Copy deb packages
+  when: ansible_distribution == "Kylin"
+  copy: src={{ item }} dest={{ deb_package_dir }}
+  with_items: "{{ docker_debs }}"
+
+- name: Install docker
+  when: ansible_distribution == "Kylin"
+  shell: cd {{ deb_package_dir }} && dpkg -i *
+

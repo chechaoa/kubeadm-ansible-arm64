@@ -1,0 +1,42 @@
+---
+
+- name: Create tmp/caicloud directory
+  file: path={{ tmp_caicloud }} state=directory
+
+- name: Create deb package directory
+  file: path={{ deb_package_dir }} state=directory
+
+- debug: msg={{ ansible_os_family }}
+
+- name: Get os_version from /etc/os-release
+  when: ansible_os_family is not defined
+  raw: "grep '^VERSION_ID=' /etc/os-release | sed s'/VERSION_ID=//'"
+  register: os_version
+  changed_when: False
+
+- name: Get distro name from /etc/os-release
+  when: ansible_os_family is not defined
+  raw: "grep '^NAME=' /etc/os-release | sed s'/NAME=//'"
+  register: distro
+  changed_when: False
+
+- name: Set fact ansible_os_family var to Kylin
+  when:
+    - ansible_os_family is not defined
+    - "'Kylin' in distro.stdout"
+  set_fact:
+    ansible_os_family: Kylin
+
+- set_fact:
+    ebtables_debs:
+      - ebtables_2.0.10.4-3.4kord1_arm64.deb
+      - socat_1.7.3.1-1kord_arm64.deb 
+     
+- name: Copy deb package
+  copy: src={{ item }} dest={{ deb_package_dir }}
+  with_items: "{{ ebtables_debs }}"
+
+- name: Install ebtables
+  shell: dpkg -i {{ deb_package_dir }}/{{ item }}
+  with_items: "{{ ebtables_debs }}"
+  ignore_errors: true

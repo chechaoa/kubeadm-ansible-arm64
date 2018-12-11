@@ -1,0 +1,47 @@
+---
+
+- name: Disable system swap
+  shell: "swapoff -a"
+
+- name: Install Kubernetes packages
+  include: pkg.yml
+
+- name: Remove current swaps from fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: '(?i)^([^#][\S]+\s+(none|swap)\s+swap.*)'
+    line: '# \1'
+    backrefs: yes
+    state: present
+
+- name: Disable swappiness and pass bridged IPv4 traffic to iptable's chains
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - { name: 'vm.swappiness', value: '0' }
+    - { name: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+
+- name: Update kubeadm.conf with cgroupfs
+  shell: sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+- name: Update kubeadm.conf with dns
+  shell: sed -i "s/10.96.0.10/{{ cluser_dns }}/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+
+- name: update kubeadm.conf with system_pods_args
+  shell: sed -i '/Environment=\"KUBELET_SYSTEM_PODS_ARGS/cEnvironment=\"KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests\ --allow-privileged=true\ --fail-swap-on=false\"' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+- name: Reload kubelet daemon
+  command: systemctl --system daemon-reload
+
+- name: Enable kubelet
+  service: name=kubelet enabled=yes
+
+- name: Restart kubelet
+  service: name=kubelet state=restarted
+
+- name: Create Kubernetes addon directory
+  file: path={{ kube_addons_dir }} state=directory
+

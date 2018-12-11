@@ -1,0 +1,15 @@
+---
+
+- hosts:
+    - master
+    - node
+
+  become: yes
+
+  tasks:
+    - name: Stop services
+      service: name={{ item }} state=stopped
+      with_items:
+        - docker
+        - kubelet
+      failed_when: false

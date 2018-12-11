@@ -1,0 +1,19 @@
+---
+
+- set_fact:
+    yaml_file_dir: "{{ kube_addons_dir }}/canal"
+    yaml_files:
+      - rbac.yaml
+      - canal.yaml
+
+- name: create canal dir for yaml
+  file: path={{ yaml_file_dir }} state=directory
+
+- name: Copy yaml files
+  copy: src=canal/{{ item }} dest={{ yaml_file_dir }}
+  with_items: "{{ yaml_files }}"
+
+- name: Install canal
+  shell: kubectl apply -f "{{ yaml_file_dir }}/{{ item }}"
+  with_items: "{{ yaml_files }}"
+

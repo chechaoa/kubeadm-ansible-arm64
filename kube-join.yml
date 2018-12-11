@@ -1,0 +1,9 @@
+---
+
+- hosts: add-node
+  gather_facts: true
+  become: yes
+  roles:
+     - { role: docker, tags: node }
+     - { role: kubernetes/node, tags: node }
+

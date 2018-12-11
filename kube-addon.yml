@@ -1,0 +1,10 @@
+---
+
+
+- hosts: master
+  gather_facts: true
+  become: yes
+  roles: 
+    - kube-addons
+  tags:
+    - kube-addons

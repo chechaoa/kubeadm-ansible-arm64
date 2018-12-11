@@ -1,0 +1,70 @@
+---
+
+- name: Reset Kubernetes component
+  shell: "kubeadm reset"
+  register: reset_cluster
+
+- name: Restart kubelet
+  service: name=kubelet state=restarted
+
+- name: Init Kubernetes cluster
+  shell: |
+    kubeadm init --service-cidr {{ service_cidr }} \
+                 --kubernetes-version {{ kube_version }} \
+                 --pod-network-cidr {{ pod_network_cidr }} \
+                 --apiserver-advertise-address {{ insecure_bind_address }} \
+                 --apiserver-bind-port {{ insecure_port }} \
+                 --token {{ token }} \
+                 --token-ttl {{ token_ttl }} \
+                 --skip-preflight-checks
+  register: init_cluster
+
+- name: Debug kubernetes init output
+  debug: msg={{ init_cluster }}
+
+- name: Get join script
+  shell: echo "{{ init_cluster.stdout }}" | grep 'kubeadm join --token'
+  register: join_script
+
+- debug: msg={{ inventory_dir  }}
+
+- name: Save join script
+  copy: content={{ join_script.stdout }} dest="{{ inventory_dir }}/join_script.sh"
+
+- name: Chmod join script
+  file:
+    path: "{{ inventory_dir }}/join_script.sh"
+    mode: 0444
+
+
+- name: Create Kubernetes config directory
+  become: false
+  file: path="~/.kube/" state=directory
+
+- name: Create kubeconfig
+  shell: cp "{{ kube_dir }}/admin.conf" "$HOME/.kube/config"
+
+- name: Chown .kube/config
+  shell: chown `id -u`:`id -g` "$HOME/.kube/config"
+
+- name: update service-node-port-range
+  shell: sed -i 's/^\ \ \ \ -\ kube-apiserver/&\n\ \ \ \ -\ --service-node-port-range=30000-65000/' /etc/kubernetes/manifests/kube-apiserver.yaml
+
+- name: Waiting apiserver to start
+  shell: kubectl get nodes
+  register: kube_bootstrap
+  until: kube_bootstrap.rc == 0
+  retries: "20"
+  delay: 6
+
+- name: Systemctl reload daemon
+  command: systemctl --system daemon-reload
+
+- name: Enable kubelet
+  service: name=kubelet enabled=yes
+
+- name: Restart kubelet
+  service: name=kubelet state=restarted
+
+- name: Make master schedulable
+  shell: kubectl taint nodes --all node-role.kubernetes.io/master-

@@ -1,0 +1,20 @@
+---
+
+- set_fact:
+    yaml_file_dir: "{{ kube_addons_dir }}/heapster"
+    yaml_files:
+      - heapster-controller.yaml
+      - heapster-rbac.yaml
+      - heapster-service.yaml
+
+- name: create heapster dir for yaml
+  file: path={{ yaml_file_dir }} state=directory
+
+- name: Copy yaml files
+  copy: src=heapster/{{ item }} dest={{ yaml_file_dir }}
+  with_items: "{{ yaml_files }}"
+
+- name: Install heapster
+  shell: kubectl apply -f "{{ yaml_file_dir }}/{{ item }}"
+  with_items: "{{ yaml_files }}"
+
