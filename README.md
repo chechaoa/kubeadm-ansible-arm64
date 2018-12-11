@@ -2,12 +2,10 @@
 
 Build a Kubernetes cluster using Ansible with kubeadm.
 
-  - Ubuntu 16.04
   - CentOS 7
 
 System requirements:
 
-  - Deployment environment must have Ansible `2.4.2.0`
   - Master and nodes must have passwordless SSH access
 
 # Usage
@@ -25,21 +23,22 @@ master
 node
 ```
 
-After going through the setup, run the `site.yaml` playbook:
+After going through the setup, run the `site.yml` playbook:
 
 ```sh
-$ ansible-playbook -i inventory site.yaml
+$ ansible-playbook -i inventory site.yml
 ```
 
 
 # Resetting the environment
 
-Finally, reset all kubeadm installed state using `reset-site.yaml` playbook:
+Finally, reset all kubeadm installed state using `reset-site.yml` playbook:
 
 ```sh
-$ ansible-playbook -i inventory reset-site.yaml
+$ ansible-playbook -i inventory reset-site.yml
 ```
 
+# fix hostname using `name.yml`
 
 # 总结:
 ### Kubeadm init
