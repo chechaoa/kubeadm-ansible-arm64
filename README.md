@@ -38,7 +38,11 @@ Finally, reset all kubeadm installed state using `reset-site.yml` playbook:
 $ ansible-playbook -i inventory reset-site.yml
 ```
 
-# fix hostname using `name.yml`
+# fix hostname using `name.yml` playbook
+
+```sh
+$ ansible-playbook -i inventory name.yml
+```
 
 # 总结:
 ### Kubeadm init
