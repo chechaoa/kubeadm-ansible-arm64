@@ -29,5 +29,5 @@ docker save `cat images.list` | gzip -c > kubeadm-images.tar.gz
  
 在 `kubeadm-ansible-arm64/roles/commons/os-checker/files` 目录下存放 `ebtables` 和 `socat` 
 
-在 `kubeadm-ansible-arm64/roles/docker/files` 目录下存放docker 的安装包
+在 `kubeadm-ansible-arm64/roles/docker/files` 目录下存放 docker 的安装包
 
